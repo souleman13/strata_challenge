@@ -56,7 +56,8 @@ MongoClient(
                     operation: 'toArabicNumeral',
                     startVal: req.body.startVal,
                     endVal: result,
-                    success: false
+                    success: false,
+                    error: result.err
                 })
                 await errorHandler.basicError('toArabicNumeral', transaction.err, res, db)
             }
@@ -74,8 +75,17 @@ MongoClient(
 
         app.post('/toRomanNumeral', async (req, res) => {
             const result = await numberService.toRomanNumeral(req.body.startVal)
-            if (result.err) errorHandler.basicError('toRomanNumeral', result.err, res, db)
-            const transaction = await transactionService.newTransaction({
+            if (result.err) {
+                await transactionService.newTransaction(db, {
+                    operation: 'toArabicNumeral',
+                    startVal: req.body.startVal,
+                    endVal: result,
+                    success: false,
+                    error: result.err
+                })
+                await errorHandler.basicError('toRomanNumeral', result.err, res, db)
+            }
+            await transactionService.newTransaction(db, {
                 operation: "toRomanNumeral",
                 startVal: req.body.startVal,
                 endVal: result,
@@ -85,7 +95,7 @@ MongoClient(
         })
 
         //start server
-        app.listen(3000, () =>
+        app.listen(4000, () =>
             console.log('Example app listening on port 3000!'),
         );
     })

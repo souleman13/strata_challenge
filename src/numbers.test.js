@@ -29,8 +29,27 @@ describe('toArabicNumeral', () => {
 describe('toRomanNumeral', () => {
     const toRomanNumeral = numberService.toRomanNumeral
     //success cases
-    test('', async () => {
-        expect(await toRomanNumeral(17)).toBe(17);
+    test('1', async () => {
+        expect(await toRomanNumeral(1)).toBe('I');
+    });
+    test('1001', async () => {
+        expect(await toRomanNumeral(1001)).toBe('MI');
+    });
+    test('391', async () => {
+        expect(await toRomanNumeral(391)).toBe('CCCXCI');
+    });
+    test('573', async () => {
+        expect(await toRomanNumeral(573)).toBe('DLXXIII');
+    });
+    test('2463', async () => {
+        expect(await toRomanNumeral(2463)).toBe('MMCDLXIII');
+    });
+    test('3999', async () => {
+        expect(await toRomanNumeral(3999)).toBe('MMMCMXCIX');
     });
     //error cases
+    test('input is not a valid roman numeral', async () => {
+        const result = await toArabicNumeral('IMXIM')
+        expect(result.err).toBe('input is not a valid roman numeral below 4000');
+    });
 })
