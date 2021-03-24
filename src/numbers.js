@@ -15,7 +15,7 @@ const toArabicNumeral = async (startVal) => {
         //only includes valid roman numeral letters
         !isRoman(romanNumeral)
         //other error checks...
-        ) return { error: 'input is not a valid roman numeral below 4000' }
+        ) return { err: 'input is not a valid roman numeral below 4000' }
     const array = romanNumeral.split('')
 
     let total = 0

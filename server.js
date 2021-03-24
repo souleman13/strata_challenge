@@ -21,7 +21,7 @@ app.get('/', (req, res) => {
 app.post('/test', async (req, res) => {
     const result = await numberService.toArabicNumeral(req.body.startVal)
         .catch(err => errorHandler(err, res))
-    res.status(200).send({result})
+    res.status(200).send({ result })
 })
 
 //DB Config
@@ -43,38 +43,45 @@ MongoClient(
         //get all transactions from db
         app.post('/transactions', async (req, res) => {
             const filters = req.body
-            const result = await transactionService.getTransactions(filters)
+            const result = await transactionService.getTransactions(db, filters)
             if (result.err) errorHandler.basicError(result.err, res)
-            res.send({result})
+            res.send({ result })
         })
 
         //code challenge endpoints
         app.post('/toArabicNumeral', async (req, res) => {
             const result = await numberService.toArabicNumeral(req.body.startVal)
-            if (result.err) errorHandler.basicError(result.err, res)
+            if (result.err) {
+                await transactionService.newTransaction(db, {
+                    operation: 'toArabicNumeral',
+                    startVal: req.body.startVal,
+                    endVal: result,
+                    success: false
+                })
+                await errorHandler.basicError('toArabicNumeral', transaction.err, res, db)
+            }
 
-            const transaction = await transactionService.newTransaction({
-                operation: "toArabicNumeral",
+            //record successful transaction
+            await transactionService.newTransaction(db, {
+                operation: 'toArabicNumeral',
                 startVal: req.body.startVal,
                 endVal: result,
                 success: true
             })
-            if (transaction.err) errorHandler.basicError(transaction.err, res)
 
-            res.send({result})
+            res.send({ result })
         })
 
         app.post('/toRomanNumeral', async (req, res) => {
             const result = await numberService.toRomanNumeral(req.body.startVal)
-            if (result.err) errorHandler.basicError(result.err, res)
+            if (result.err) errorHandler.basicError('toRomanNumeral', result.err, res, db)
             const transaction = await transactionService.newTransaction({
                 operation: "toRomanNumeral",
                 startVal: req.body.startVal,
                 endVal: result,
                 success: true
             })
-            if (transaction.err) errorHandler.basicError(transaction.err, res)
-            res.send({result})
+            res.send({ result })
         })
 
         //start server

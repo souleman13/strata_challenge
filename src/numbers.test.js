@@ -18,11 +18,11 @@ describe('toArabicNumeral', () => {
     //error cases
     test('input includes invalid letter', async () => {
         const result = await toArabicNumeral('IMXYIM')
-        expect(result.error).toBe('input is not a valid roman numeral below 4000')
+        expect(result.err).toBe('input is not a valid roman numeral below 4000')
     });
     test('input is not a valid roman numeral', async () => {
         const result = await toArabicNumeral('IMXIM')
-        expect(result.error).toBe('input is not a valid roman numeral below 4000');
+        expect(result.err).toBe('input is not a valid roman numeral below 4000');
     });
 })
 

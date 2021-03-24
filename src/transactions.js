@@ -2,16 +2,17 @@ const { uuid } = require('uuidv4');
 
 const mongoCollection = 'transactions'
 
-const newTransaction = async (transactionParams) => {
+const newTransaction = async (db, transactionParams) => {
     const newTransaction = { ...transactionParams, transactionId: uuid() }
+    const transactionsCollection = db.collection(mongoCollection)
     return await transactionsCollection.insertOne(newTransaction)
         .then(result => {
             return result.ops
         })
-        .catch(err)
+        .catch(err => err)
 }
 
-const getTransactions = async (filters, db) => {
+const getTransactions = async (db, filters) => {
     const transactionsCollection = db.collection(mongoCollection)
     return await transactionsCollection.find({ ...filters }).toArray()
         .then(result => {
@@ -20,7 +21,7 @@ const getTransactions = async (filters, db) => {
                 data: result
             }
         })
-        .catch(err)
+        .catch(err => err)
 }
 
 module.exports = { newTransaction, getTransactions }
