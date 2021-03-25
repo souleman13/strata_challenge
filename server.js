@@ -1,5 +1,6 @@
 const express = require('express')
 const bodyParser = require('body-parser')
+const cors = require('cors')
 const MongoClient = require('mongodb').MongoClient
 
 const transactionService = require('./src/transactions')
@@ -10,8 +11,11 @@ const errorHandler = require('./src/error')
 const app = express();
 
 //middleware
+app.use(cors())
 app.use(bodyParser.urlencoded({ extended: true }))
-app.use(bodyParser.json({ extended: true }))
+app.use(express.json({
+    type: ['application/json', 'text/plain']
+  }))
 
 //non-DB endpoints
 app.get('/', (req, res) => {
@@ -50,7 +54,9 @@ MongoClient(
 
         //code challenge endpoints
         app.post('/toArabicNumeral', async (req, res) => {
+            console.log(req.body)
             const result = await numberService.toArabicNumeral(req.body.startVal)
+            console.log(result)
             if (result.err) {
                 await transactionService.newTransaction(db, {
                     operation: 'toArabicNumeral',
@@ -70,7 +76,7 @@ MongoClient(
                 success: true
             })
 
-            res.send({ result })
+            await res.json({ result })
         })
 
         app.post('/toRomanNumeral', async (req, res) => {
