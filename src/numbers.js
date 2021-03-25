@@ -45,6 +45,10 @@ const toRomanNumeral = async (startVal) => {
     if (typeof parseInt(startVal) !== 'number')
         return { err: 'input is not a number' }
 
+    //negative numbers
+    if (startVal < 0) 
+        return { err: 'input cannot be negative' } 
+
     const digits = String(+startVal).split("")
     const key = ["", "C", "CC", "CCC", "CD", "D", "DC", "DCC", "DCCC", "CM",
         "", "X", "XX", "XXX", "XL", "L", "LX", "LXX", "LXXX", "XC",

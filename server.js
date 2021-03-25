@@ -15,7 +15,7 @@ app.use(cors())
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(express.json({
     type: ['application/json', 'text/plain']
-  }))
+}))
 
 //non-DB endpoints
 app.get('/', (req, res) => {
@@ -54,9 +54,7 @@ MongoClient(
 
         //code challenge endpoints
         app.post('/toArabicNumeral', async (req, res) => {
-            console.log(req.body)
             const result = await numberService.toArabicNumeral(req.body.startVal)
-            console.log(result)
             if (result.err) {
                 await transactionService.newTransaction(db, {
                     operation: 'toArabicNumeral',
@@ -65,18 +63,19 @@ MongoClient(
                     success: false,
                     error: result.err
                 })
-                await errorHandler.basicError('toArabicNumeral', transaction.err, res, db)
+                await errorHandler.basicError(result.err, res)
+            } else {
+                //record successful transaction
+                await transactionService.newTransaction(db, {
+                    operation: 'toArabicNumeral',
+                    startVal: req.body.startVal,
+                    endVal: result,
+                    success: true
+                })
+
+                await res.send({ result })
             }
 
-            //record successful transaction
-            await transactionService.newTransaction(db, {
-                operation: 'toArabicNumeral',
-                startVal: req.body.startVal,
-                endVal: result,
-                success: true
-            })
-
-            await res.json({ result })
         })
 
         app.post('/toRomanNumeral', async (req, res) => {
@@ -89,15 +88,17 @@ MongoClient(
                     success: false,
                     error: result.err
                 })
-                await errorHandler.basicError('toRomanNumeral', result.err, res, db)
+                await errorHandler.basicError(result.err, res)
+            } else {
+                await transactionService.newTransaction(db, {
+                    operation: "toRomanNumeral",
+                    startVal: req.body.startVal,
+                    endVal: result,
+                    success: true
+                })
+                res.send({ result })
             }
-            await transactionService.newTransaction(db, {
-                operation: "toRomanNumeral",
-                startVal: req.body.startVal,
-                endVal: result,
-                success: true
-            })
-            res.send({ result })
+
         })
 
         //start server
